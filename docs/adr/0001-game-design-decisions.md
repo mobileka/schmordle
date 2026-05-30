@@ -42,8 +42,9 @@ Subsequent launches skip to main menu.
 
 ## Persistence
 
-- **Config**: `~/.schmordle/config.json` for high scores + settings.
-- **Dictionary**: `data/dictionary.json` (bundled JSON array, user provides the file).
+- **Distribution**: Compiled to a standalone binary via `bun build --compile`. Platform-specific (compile per target).
+- **Config**: `~/.schmordle/config.json` for high scores + settings. Persists across binary reinstalls.
+- **Dictionary**: Source at `data/dictionary.json`, embedded in the binary at build time. Loaded into memory at startup, not read from filesystem at runtime.
 - **Settings**: Strictness, extra challenges, and username are persisted between sessions.
 
 ## Custom mode

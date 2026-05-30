@@ -3,7 +3,7 @@ Schmordle is a terminal-based Wordle-like game built with OpenTUI and React.
 ## Language
 
 **Dictionary**:
-A bundled JSON array of 5-letter words at `data/dictionary.json`. Loaded once at startup.
+A JSON array of 5-letter words embedded in the binary at build time (source at `data/dictionary.json`). Loaded into memory at startup.
 _Avoid_: word list, word bank
 
 **Username**:
