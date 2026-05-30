@@ -43,7 +43,7 @@ Subsequent launches skip to main menu.
 ## Persistence
 
 - **Distribution**: Compiled to a standalone binary via `bun build --compile`. Platform-specific (compile per target).
-- **Config**: `~/.schmordle/config.json` for high scores + settings. Persists across binary reinstalls.
+- **Config**: `~/.config/schmordle/config.json` for high scores + settings. Directory created automatically if it doesn't exist. Follows XDG Base Directory Specification.
 - **Dictionary**: Source at `data/dictionary.json`, embedded in the binary at build time. Loaded into memory at startup, not read from filesystem at runtime.
 - **Settings**: Strictness, extra challenges, and username are persisted between sessions.
 

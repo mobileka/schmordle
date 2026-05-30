@@ -10,59 +10,102 @@ A terminal-based Wordle clone built with OpenTUI and React, compiled to a standa
 
 ## User Stories
 
-1. As a player, I want to see a splash screen with "SCHMORDLE" branding on first launch, so that I know the game has started.
-2. As a player, I want to be prompted for a username on first launch, so that my high scores are identified.
-3. As a player, I want my username to be stored in a config file, so that I don't have to enter it every time.
-4. As a player, I want to change my username in Settings, so that I can fix typos or rebrand.
-5. As a player, I want to see a main menu with game mode options, so that I can choose how to play.
-6. As a player, I want to navigate menus with arrow keys AND hotkeys, so that I can use whichever input method I prefer.
-7. As a player, I want to select Zen mode, so that I can play without timers or scoring pressure.
-8. As a player, I want to select Relaxed mode, so that I have 5 minutes to guess and can build streaks.
-9. As a player, I want to select Normal mode, so that I have 3 minutes to guess.
-10. As a player, I want to select Hard mode, so that I have only 90 seconds to guess.
-11. As a player, I want to select Insane mode, so that I have only 30 seconds to guess.
-12. As a player, I want to select Custom mode, so that I can set my own timer duration.
-13. As a player, I want to toggle the timer on/off in Custom mode, so that I can play with or without time pressure.
-14. As a player, I want to input a custom time in seconds in Custom mode, so that I can set my own difficulty.
-15. As a player, I want to see a 5×6 grid when the game starts, so that I have 6 attempts to guess the 5-letter word.
-16. As a player, I want to type a 5-letter word and press Enter to submit my guess, so that I can play the game.
-17. As a player, I want to see each letter colored grey (absent), orange (present), or green (correct) after submitting a guess, so that I know which letters are in the word and where.
-18. As a player, I want to see a virtual QWERTY keyboard below the grid, so that I can track which letters I've already used.
-19. As a player, I want the keyboard to update letter colors only after submitting a guess (not while typing), so that the feedback matches Wordle's behavior.
-20. As a player, I want to see my remaining time in the top-right corner, so that I can manage my time.
-21. As a player, I want to see my current streak next to the timer, so that I can track my progress.
-22. As a player, I want to see an error message when I submit a word not in the dictionary, so that I know to try a different word.
-23. As a player, I want to see a brief "Correct!" overlay when I guess the word, so that I get feedback on my success.
-24. As a player, I want the "Correct!" overlay to show my score and streak, so that I can see my progress.
-25. As a player, I want the timer to pause while the "Correct!" overlay is visible, so that I'm not penalized for watching the feedback.
-26. As a player, I want the game to automatically pick a new word after the "Correct!" overlay, so that I can keep playing in timed modes.
-27. As a player, I want my streak to increase by 1 after each correct guess, so that I can build a combo.
-28. As a player, I want 5 minutes added to my timer after each correct guess in timed modes, so that I have more time for the next word.
-29. As a player, I want my score to be calculated as `Streak × Remaining seconds`, so that faster guesses earn more points.
-30. As a player, I want the streak to be bumped BEFORE the score is calculated, so that my first win earns points.
-31. As a player, I want to see a game over screen when I run out of attempts or time, so that I know the game is over.
-32. As a player, I want the game over screen to show my score, streak, and the hidden word, so that I can learn from my mistakes.
-33. As a player, I want to press Escape to give up during a round, so that I can exit early.
-34. As a player, I want a "Give up?" confirmation overlay when I press Escape, so that I don't accidentally quit.
-35. As a player, I want the timer to pause while the "Give up?" overlay is visible, so that I'm not penalized for considering my options.
-36. As a player, I want to press Y to confirm giving up or N/Esc to cancel, so that I have clear controls.
-37. As a player, I want to see Play Again, High Scores, and Quit options on the game over screen, so that I can decide what to do next.
-38. As a player, I want Play Again to restart the same game mode immediately, so that I can keep my momentum.
-39. As a player, I want to access Settings from the main menu, so that I can configure the game.
-40. As a player, I want to set Strictness to Relaxed (default), Strict, or Very Strict, so that I can control guess validation.
-41. As a player, I want Strict mode to require all revealed present and correct letters in my next guess, so that the game is more challenging.
-42. As a player, I want Very Strict mode to require correct letters to stay in their positions, so that the game is even more challenging.
-43. As a player, I want to enable "Prohibit known absent letters" as an Extra Challenge, so that I can't reuse letters I know are wrong.
-44. As a player, I want the absent letter prohibition to reset between rounds, so that each word is a fresh challenge.
-45. As a player, I want my settings to be persisted between sessions, so that I don't have to reconfigure every time.
-46. As a player, I want to access High Scores from the main menu, so that I can see my best games.
-47. As a player, I want to see high scores organized by game mode tabs (Relaxed, Normal, Hard, Insane), so that I can compare like with like.
-48. As a player, I want to see Rank, UserName, Score, Date, and Extra Challenges in the high scores table, so that I have full context for each score.
-49. As a player, I want Extra Challenges to show full names (e.g., "Prohibit Absent") or "None", so that the column is readable.
-50. As a player, I want a maximum of 10 high scores per mode, so that the table stays manageable.
-51. As a player, I want scores of 0 to never be saved, so that the table only shows meaningful achievements.
-52. As a player, I want my high scores to be saved to `~/.schmordle/config.json`, so that they persist between sessions.
-53. As a player, I want to run a single binary to play the game, so that I don't need to install Bun or clone the repo.
+1. As a player, I want to see a splash screen and set my username on first launch, so that the game identifies me and my progress is saved.
+   - [ ] Splash screen shows "SCHMORDLE" branding
+   - [ ] Username prompt appears on first launch
+   - [ ] Username is stored in `~/.config/schmordle/config.json`
+   - [ ] Subsequent launches skip splash and go straight to menu
+
+2. As a player, I want to see a main menu where I can select a game mode, access Settings, and view High Scores, so that I can navigate the game.
+   - [ ] Shows all 6 game modes: Zen, Relaxed, Normal, Hard, Insane, Custom
+   - [ ] Arrow keys navigate the menu
+   - [ ] Hotkeys (1-6) select modes directly
+   - [ ] Settings and High Scores accessible from menu
+   - [ ] Quit option exits the game
+
+3. As a player, I want to type words, see them in a grid, and see letter colors (grey/orange/green) after each guess, so that I can play the core Wordle game.
+   - [ ] 5×6 grid renders (5 letters wide, 6 rows)
+   - [ ] Typing fills the current row left to right
+   - [ ] Backspace removes the last letter
+   - [ ] Enter submits the guess
+   - [ ] Letters color grey (absent), orange (present), green (correct) after submission
+   - [ ] Invalid word shows an error message
+
+4. As a player, I want to see a virtual keyboard showing which letters I've used and their states, so that I can track my progress at a glance.
+   - [ ] QWERTY keyboard renders below the grid
+   - [ ] Letters colored by state: grey/orange/green
+   - [ ] Keyboard updates only after guess submission, not while typing
+
+5. As a player, I want to see my remaining time and current streak during gameplay, so that I can manage my strategy.
+   - [ ] Timer shows remaining time in `MM:SS` format, top-right corner
+   - [ ] Streak shows current streak count next to timer
+   - [ ] Timer counts down every second
+   - [ ] Timer pauses during overlays (Correct, Give up)
+
+6. As a player, I want to see a "Correct!" overlay with my score when I win, then automatically start the next round, so that I can keep playing in timed modes.
+   - [ ] "Correct!" overlay appears after correct guess
+   - [ ] Overlay shows score earned and current streak
+   - [ ] Overlay shows "+5:00" time bonus in timed modes
+   - [ ] Timer pauses during overlay
+   - [ ] After ~2 seconds, auto-transitions to new grid with new word
+
+7. As a player, I want to see a game over screen with my score, streak, and the hidden word when I lose, so that I can learn and decide what to do next.
+   - [ ] Game over screen appears on loss (out of attempts or time)
+   - [ ] Shows final score, streak, and revealed hidden word
+   - [ ] Play Again restarts same mode
+   - [ ] High Scores opens high scores screen
+   - [ ] Quit exits the game
+
+8. As a player, I want to press Escape to give up with a confirmation prompt, so that I can exit a round early.
+   - [ ] Escape key triggers "Give up?" confirmation overlay
+   - [ ] Y confirms give up, N/Esc cancels
+   - [ ] Timer pauses during confirmation
+   - [ ] Giving up triggers game over screen
+
+9. As a player, I want my score calculated as `Streak × Remaining seconds` with the streak bumped before scoring, so that faster guesses earn more points.
+   - [ ] Score formula: `Streak × Remaining seconds`
+   - [ ] Streak bumps before score calculation on each win
+   - [ ] Score accumulates across rounds in a session
+   - [ ] Streak resets to 0 on loss
+
+10. As a player, I want to configure Strictness levels and Extra Challenges in Settings, so that I can control the difficulty.
+    - [ ] Relaxed: no restrictions on guesses
+    - [ ] Strict: guess must contain all revealed present and correct letters
+    - [ ] Very Strict: Strict + correct letters must stay in position
+    - [ ] "Prohibit known absent letters": can't reuse absent letters
+    - [ ] Absent letter restriction resets between rounds
+
+11. As a player, I want my settings and high scores saved between sessions, so that I don't lose my progress.
+    - [ ] Settings saved to `~/.config/schmordle/config.json`
+    - [ ] High scores saved to `~/.config/schmordle/config.json`
+    - [ ] Directory created automatically if it doesn't exist
+    - [ ] Max 10 high scores per mode per user
+    - [ ] Score of 0 never saved
+
+12. As a player, I want to view high scores organized by game mode in a table, so that I can compare my best games.
+    - [ ] Tabs for Relaxed, Normal, Hard, Insane (no Zen/Custom)
+    - [ ] Table: Rank, UserName, Score, Date, Extra Challenges
+    - [ ] Extra Challenges shows full name or "None"
+    - [ ] Arrow keys + hotkeys navigate tabs
+
+13. As a player, I want to play Zen mode (no timer, no scoring) and Custom mode (configurable timer), so that I can play at my own pace.
+    - [ ] Zen: no timer, no score tracking, just play
+    - [ ] Custom: toggle timer on/off, input custom seconds
+    - [ ] Custom: no high scores recorded
+
+14. As a player, I want to play timed modes (Relaxed 5min, Normal 3min, Hard 90s, Insane 30s) with 5 minutes added on each win, so that I have escalating challenge.
+    - [ ] Relaxed: 5 minutes (300s)
+    - [ ] Normal: 3 minutes (180s)
+    - [ ] Hard: 90 seconds
+    - [ ] Insane: 30 seconds
+    - [ ] Win adds 5 minutes to remaining time
+    - [ ] Loss triggers game over screen
+
+15. As a player, I want to run a single compiled binary to play the game, so that I don't need to install Bun or clone the repo.
+    - [ ] `bun build --compile` produces standalone binary
+    - [ ] Dictionary embedded in binary
+    - [ ] Binary runs without Bun installed
+    - [ ] User data persists at `~/.config/schmordle/config.json`
 
 ## Implementation Decisions
 
@@ -76,7 +119,7 @@ A terminal-based Wordle clone built with OpenTUI and React, compiled to a standa
 
 3. **dictionary.ts** — Dictionary loading. Imports `data/dictionary.json` directly (Bun bundles it at build time). Provides `getRandomWord()` and `isValidWord(word)`.
 
-4. **storage.ts** — Config persistence. Read/write to `~/.schmordle/config.json`. Handles high scores (per mode, max 10 per user) and settings (strictness, extra challenges, username).
+4. **storage.ts** — Config persistence. Read/write to `~/.config/schmordle/config.json`. Handles high scores (per mode, max 10 per user) and settings (strictness, extra challenges, username). Creates directory automatically if it doesn't exist.
 
 5. **gameReducer.ts** — Core game state machine. Uses `useReducer` pattern. Actions: `START_GAME`, `SUBMIT_GUESS`, `TIMER_TICK`, `GIVE_UP`, `WIN`, `LOSE`, `RESET`. State includes: mode, grid, currentRow, currentCol, hiddenWord, timer, streak, score, status.
 
@@ -140,7 +183,7 @@ type GameState = {
 - Play Again: Restarts same mode immediately.
 
 **Persistence:**
-- Config: `~/.schmordle/config.json` (persists across binary reinstalls)
+- Config: `~/.config/schmordle/config.json` (follows XDG Base Directory Specification, directory created automatically)
 - Dictionary: Embedded in binary (source at `data/dictionary.json`)
 - Settings persisted between sessions
 
@@ -169,6 +212,7 @@ type GameState = {
    - Max 10 high scores per mode enforcement
    - Score of 0 not saved
    - Config file doesn't exist yet (first launch)
+   - Directory creation when it doesn't exist
 
 4. **gameReducer.ts** — Test cases:
    - Start game for each mode

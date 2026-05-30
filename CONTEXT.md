@@ -11,7 +11,7 @@ A display name prompted on first launch, stored in the config file, and changeab
 _Avoid_: player name, display name
 
 **Config**:
-A local JSON file at `~/.schmordle/config.json` that persists high scores and settings between sessions.
+A local JSON file at `~/.config/schmordle/config.json` that persists high scores and settings between sessions. The directory is created automatically if it doesn't exist.
 _Avoid_: save file, preferences
 
 **Strictness**:
