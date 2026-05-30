@@ -8,7 +8,8 @@
     "build": "bun build --compile src/index.tsx --outfile schmordle"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/react": "^19.2.15"
   },
   "peerDependencies": {
     "typescript": "^5"
