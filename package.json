@@ -1,8 +1,11 @@
 {
   "name": "schmordle",
-  "module": "index.ts",
+  "module": "src/index.tsx",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun run --watch src/index.tsx"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -10,6 +13,8 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@opentui/core": "^0.3.0"
+    "@opentui/core": "^0.3.0",
+    "@opentui/react": "^0.3.0",
+    "react": "^19.2.6"
   }
 }
