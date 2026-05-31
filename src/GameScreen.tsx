@@ -2,6 +2,7 @@ import { useReducer, useEffect } from 'react'
 import { useRenderer } from '@opentui/react'
 import { Grid } from './Grid'
 import { Keyboard } from './Keyboard'
+import { Timer } from './Timer'
 import { evaluateGuess, accumulateLetterStates, type LetterState } from './wordle'
 import { getRandomWord, isValidWord } from './dictionary'
 import type { GameMode } from './storage'
@@ -18,6 +19,8 @@ type GameState = {
   status: GameStatus
   error: string
   letterStates: Map<string, LetterState>
+  timeRemaining: number
+  streak: number
 }
 
 type GameAction =
@@ -25,8 +28,9 @@ type GameAction =
   | { type: 'BACKSPACE' }
   | { type: 'SUBMIT' }
   | { type: 'CLEAR_ERROR' }
+  | { type: 'TICK' }
 
-function createInitialState(mode: GameMode): GameState {
+export function createInitialState(mode: GameMode): GameState {
   return {
     mode,
     grid: Array(6).fill(null).map(() => Array(5).fill(null)),
@@ -37,10 +41,12 @@ function createInitialState(mode: GameMode): GameState {
     status: 'playing',
     error: '',
     letterStates: new Map(),
+    timeRemaining: 120,
+    streak: 0,
   }
 }
 
-function gameReducer(state: GameState, action: GameAction): GameState {
+export function gameReducer(state: GameState, action: GameAction): GameState {
   if (state.status !== 'playing' && action.type !== 'CLEAR_ERROR') return state
 
   switch (action.type) {
@@ -97,11 +103,19 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         status: won ? 'won' : lost ? 'lost' : 'playing',
         error: '',
         letterStates: accumulateLetterStates(state.letterStates, guess, result),
+        streak: won ? state.streak + 1 : lost ? 0 : state.streak,
       }
     }
 
     case 'CLEAR_ERROR':
       return { ...state, error: '' }
+
+    case 'TICK':
+      if (state.status !== 'playing') return state
+      if (state.timeRemaining <= 1) {
+        return { ...state, timeRemaining: 0, status: 'lost', streak: 0 }
+      }
+      return { ...state, timeRemaining: state.timeRemaining - 1 }
 
     default:
       return state
@@ -140,12 +154,23 @@ export function GameScreen({ mode, onQuit }: GameScreenProps) {
     return () => { renderer.keyInput.off('keypress', handler) }
   }, [renderer, onQuit])
 
+  useEffect(() => {
+    if (state.status !== 'playing') return
+    const interval = setInterval(() => {
+      dispatch({ type: 'TICK' })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [state.status])
+
   const message = state.error || (state.status === 'won' ? 'You won!' : state.status === 'lost' ? `Game over! Word was: ${state.hiddenWord}` : '')
   const messageColor = state.error ? '#ff6b6b' : state.status === 'won' ? '#538d4e' : '#ff6b6b'
 
   return (
     <box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1} gap={2}>
-      <text>SCHMORDLE - {mode.toUpperCase()}</text>
+      <box flexDirection="row" gap={2} alignItems="center">
+        <text>SCHMORDLE - {mode.toUpperCase()}</text>
+        <Timer timeRemaining={state.timeRemaining} streak={state.streak} />
+      </box>
       <text fg={messageColor} height={1}>{message}</text>
       <Grid grid={state.grid} states={state.states} />
       <Keyboard letterStates={state.letterStates} />
