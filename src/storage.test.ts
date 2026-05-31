@@ -19,7 +19,7 @@ describe('storage', () => {
 
   test('loadConfig returns defaults when file does not exist', async () => {
     const config = await loadConfig(configPath)
-    expect(config.username).toBe('huh')
+    expect(config.username).toBe('')
     expect(config.settings.strictness).toBe('relaxed')
     expect(config.settings.extraChallenges.prohibitAbsent).toBe(false)
     expect(config.highScores).toEqual({})
