@@ -3,6 +3,7 @@ import { useRenderer } from '@opentui/react'
 import { Grid } from './Grid'
 import { Keyboard } from './Keyboard'
 import { Timer } from './Timer'
+import { WinOverlay } from './WinOverlay'
 import { evaluateGuess, accumulateLetterStates, calculateScore, type LetterState } from './wordle'
 import { getRandomWord, isValidWord } from './dictionary'
 import type { GameMode } from './storage'
@@ -22,6 +23,7 @@ type GameState = {
   timeRemaining: number
   streak: number
   score: number
+  lastScoreEarned: number
 }
 
 type GameAction =
@@ -30,6 +32,7 @@ type GameAction =
   | { type: 'SUBMIT' }
   | { type: 'CLEAR_ERROR' }
   | { type: 'TICK' }
+  | { type: 'NEW_ROUND' }
 
 export function createInitialState(mode: GameMode): GameState {
   return {
@@ -45,11 +48,12 @@ export function createInitialState(mode: GameMode): GameState {
     timeRemaining: 120,
     streak: 0,
     score: 0,
+    lastScoreEarned: 0,
   }
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
-  if (state.status !== 'playing' && action.type !== 'CLEAR_ERROR') return state
+  if (state.status !== 'playing' && action.type !== 'CLEAR_ERROR' && action.type !== 'NEW_ROUND') return state
 
   switch (action.type) {
     case 'TYPE_LETTER': {
@@ -97,6 +101,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const won = result.every(s => s === 'correct')
       const lost = !won && state.currentRow === 5
       const newStreak = won ? state.streak + 1 : lost ? 0 : state.streak
+      const scoreEarned = won ? (newStreak * state.timeRemaining) : 0
 
       return {
         ...state,
@@ -108,6 +113,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         letterStates: accumulateLetterStates(state.letterStates, guess, result),
         streak: newStreak,
         score: won ? calculateScore(state.score, newStreak, state.timeRemaining) : state.score,
+        timeRemaining: won ? state.timeRemaining + 60 : state.timeRemaining,
+        lastScoreEarned: scoreEarned,
       }
     }
 
@@ -120,6 +127,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return { ...state, timeRemaining: 0, status: 'lost', streak: 0 }
       }
       return { ...state, timeRemaining: state.timeRemaining - 1 }
+
+    case 'NEW_ROUND':
+      return {
+        ...state,
+        grid: Array(6).fill(null).map(() => Array(5).fill(null)),
+        states: Array(6).fill(null).map(() => Array(5).fill(null)),
+        currentRow: 0,
+        currentCol: 0,
+        hiddenWord: getRandomWord(),
+        status: 'playing',
+        error: '',
+        letterStates: new Map(),
+      }
 
     default:
       return state
@@ -166,8 +186,22 @@ export function GameScreen({ mode, onQuit }: GameScreenProps) {
     return () => clearInterval(interval)
   }, [state.status])
 
-  const message = state.error || (state.status === 'won' ? 'You won!' : state.status === 'lost' ? `Game over! Word was: ${state.hiddenWord}` : '')
-  const messageColor = state.error ? '#ff6b6b' : state.status === 'won' ? '#538d4e' : '#ff6b6b'
+  useEffect(() => {
+    if (state.status !== 'won') return
+    const timeout = setTimeout(() => {
+      dispatch({ type: 'NEW_ROUND' })
+    }, 2000)
+    return () => clearTimeout(timeout)
+  }, [state.status])
+
+  const message = state.error || (state.status === 'lost' ? `Game over! Word was: ${state.hiddenWord}` : '')
+  const messageColor = state.error ? '#ff6b6b' : '#ff6b6b'
+
+  if (state.status === 'won') {
+    return (
+      <WinOverlay scoreEarned={state.lastScoreEarned} streak={state.streak} />
+    )
+  }
 
   return (
     <box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1} gap={2}>
