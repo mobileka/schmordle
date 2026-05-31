@@ -11,7 +11,7 @@ export type HighScore = {
   extraChallenges: string[]
 }
 
-export type Config =
+export type Config = {
   username: string
   settings: {
     strictness: Strictness
