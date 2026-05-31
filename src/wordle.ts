@@ -26,3 +26,23 @@ export function evaluateGuess(guess: string, hiddenWord: string): LetterState[] 
 
   return result
 }
+
+const priority: Record<LetterState, number> = { absent: 0, present: 1, correct: 2 }
+
+export function accumulateLetterStates(
+  existing: Map<string, LetterState>,
+  guess: string,
+  result: LetterState[]
+): Map<string, LetterState> {
+  const updated = new Map(existing)
+  for (let i = 0; i < guess.length; i++) {
+    const letter = guess[i]
+    const newState = result[i]
+    if (!letter || !newState) continue
+    const current = updated.get(letter)
+    if (!current || priority[newState] > priority[current]) {
+      updated.set(letter, newState)
+    }
+  }
+  return updated
+}
