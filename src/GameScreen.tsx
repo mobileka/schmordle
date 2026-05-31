@@ -3,7 +3,7 @@ import { useRenderer } from '@opentui/react'
 import { Grid } from './Grid'
 import { Keyboard } from './Keyboard'
 import { Timer } from './Timer'
-import { evaluateGuess, accumulateLetterStates, type LetterState } from './wordle'
+import { evaluateGuess, accumulateLetterStates, calculateScore, type LetterState } from './wordle'
 import { getRandomWord, isValidWord } from './dictionary'
 import type { GameMode } from './storage'
 
@@ -21,6 +21,7 @@ type GameState = {
   letterStates: Map<string, LetterState>
   timeRemaining: number
   streak: number
+  score: number
 }
 
 type GameAction =
@@ -43,6 +44,7 @@ export function createInitialState(mode: GameMode): GameState {
     letterStates: new Map(),
     timeRemaining: 120,
     streak: 0,
+    score: 0,
   }
 }
 
@@ -94,6 +96,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const won = result.every(s => s === 'correct')
       const lost = !won && state.currentRow === 5
+      const newStreak = won ? state.streak + 1 : lost ? 0 : state.streak
 
       return {
         ...state,
@@ -103,7 +106,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         status: won ? 'won' : lost ? 'lost' : 'playing',
         error: '',
         letterStates: accumulateLetterStates(state.letterStates, guess, result),
-        streak: won ? state.streak + 1 : lost ? 0 : state.streak,
+        streak: newStreak,
+        score: won ? calculateScore(state.score, newStreak, state.timeRemaining) : state.score,
       }
     }
 
@@ -167,7 +171,8 @@ export function GameScreen({ mode, onQuit }: GameScreenProps) {
 
   return (
     <box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1} gap={2}>
-      <box flexDirection="row" gap={2} alignItems="center">
+      <box flexDirection="row" gap={3} alignItems="center">
+        <text>Score: {state.score}</text>
         <text>SCHMORDLE - {mode.toUpperCase()}</text>
         <Timer timeRemaining={state.timeRemaining} streak={state.streak} />
       </box>
