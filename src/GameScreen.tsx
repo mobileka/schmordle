@@ -1,7 +1,8 @@
 import { useReducer, useEffect } from 'react'
 import { useRenderer } from '@opentui/react'
 import { Grid } from './Grid'
-import { evaluateGuess, type LetterState } from './wordle'
+import { Keyboard } from './Keyboard'
+import { evaluateGuess, accumulateLetterStates, type LetterState } from './wordle'
 import { getRandomWord, isValidWord } from './dictionary'
 import type { GameMode } from './storage'
 
@@ -16,6 +17,7 @@ type GameState = {
   hiddenWord: string
   status: GameStatus
   error: string
+  letterStates: Map<string, LetterState>
 }
 
 type GameAction =
@@ -34,6 +36,7 @@ function createInitialState(mode: GameMode): GameState {
     hiddenWord: getRandomWord(),
     status: 'playing',
     error: '',
+    letterStates: new Map(),
   }
 }
 
@@ -93,6 +96,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         currentCol: 0,
         status: won ? 'won' : lost ? 'lost' : 'playing',
         error: '',
+        letterStates: accumulateLetterStates(state.letterStates, guess, result),
       }
     }
 
@@ -140,10 +144,11 @@ export function GameScreen({ mode, onQuit }: GameScreenProps) {
   const messageColor = state.error ? '#ff6b6b' : state.status === 'won' ? '#538d4e' : '#ff6b6b'
 
   return (
-    <box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1} gap={1}>
+    <box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1} gap={2}>
       <text>SCHMORDLE - {mode.toUpperCase()}</text>
       <text fg={messageColor} height={1}>{message}</text>
       <Grid grid={state.grid} states={state.states} />
+      <Keyboard letterStates={state.letterStates} />
       <text fg="#888">[Esc] Back</text>
     </box>
   )
