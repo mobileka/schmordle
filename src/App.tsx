@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
+import { useRenderer } from '@opentui/react'
 import { loadConfig, saveConfig, type Config } from './storage'
 import { SplashScreen } from './SplashScreen'
+import { MenuScreen } from './MenuScreen'
 
 const CONFIG_PATH = `${process.env.HOME}/.config/schmordle/config.json`
 
 export function App() {
   const [config, setConfig] = useState<Config | null>(null)
+  const renderer = useRenderer()
 
   useEffect(() => {
     loadConfig(CONFIG_PATH).then(setConfig)
@@ -26,8 +29,19 @@ export function App() {
   }
 
   return (
-    <box alignItems="center" justifyContent="center" flexGrow={1}>
-      <text>Welcome, {config.username}! (Menu coming soon)</text>
-    </box>
+    <MenuScreen
+      onSelect={(mode) => {
+        console.log('Selected mode:', mode)
+      }}
+      onSettings={() => {
+        console.log('Settings')
+      }}
+      onHighScores={() => {
+        console.log('High Scores')
+      }}
+      onQuit={() => {
+        renderer.destroy()
+      }}
+    />
   )
 }
