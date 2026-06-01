@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import { evaluateGuess } from './wordle'
+import { evaluateGuess, calculateScore } from './wordle'
 
 describe('wordle', () => {
   test('all letters correct', () => {
@@ -30,5 +30,12 @@ describe('wordle', () => {
   test('letter appears twice in guess, once correct once absent', () => {
     const result = evaluateGuess('APPLE', 'EAGLE')
     expect(result).toEqual(['present', 'absent', 'absent', 'correct', 'correct'])
+  })
+
+  test('calculates score correctly', () => {
+    expect(calculateScore(0, 1, 60)).toBe(60)
+    expect(calculateScore(60, 2, 50)).toBe(160)
+    expect(calculateScore(100, 5, 0)).toBe(100)
+    expect(calculateScore(0, 0, 60)).toBe(0)
   })
 })

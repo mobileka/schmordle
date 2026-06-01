@@ -199,7 +199,7 @@ export function GameScreen({ mode, onQuit }: GameScreenProps) {
 
   if (state.status === 'won') {
     return (
-      <WinOverlay scoreEarned={state.lastScoreEarned} streak={state.streak} />
+      <WinOverlay scoreEarned={state.lastScoreEarned} streak={state.streak} totalScore={state.score} />
     )
   }
 

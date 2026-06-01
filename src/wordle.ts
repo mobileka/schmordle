@@ -48,5 +48,5 @@ export function accumulateLetterStates(
 }
 
 export function calculateScore(currentScore: number, streak: number, timeRemaining: number): number {
-  return currentScore + (streak + 1) * timeRemaining
+  return currentScore + streak * timeRemaining
 }
