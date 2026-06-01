@@ -25,5 +25,5 @@
 
 ## Other
 
-- Run tests with: `bun test`
-- Run app with: `bun run src/index.tsx`
+- Run tests with: `~/.bun/bin/bun test`
+- Run app with: `~/.bun/bin/bun run src/index.tsx`
