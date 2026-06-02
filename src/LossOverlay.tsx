@@ -16,9 +16,11 @@ export function LossOverlay({ mode, totalScore, streak, hiddenWord, onPlayAgain,
       <box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1} gap={1}>
         <text fg="#ff6b6b">Game Over!</text>
         <text>The word was: {hiddenWord}</text>
-        <text fg="#888">[P] Play Again</text>
-        <text fg="#888">[H] High Scores</text>
-        <text fg="#888">[Esc] Quit</text>
+        <box flexDirection="row" gap={4}>
+          <text fg="#888">[P] Play Again</text>
+          <text fg="#888">[H] High Scores</text>
+          <text fg="#888">[Esc] Quit</text>
+        </box>
       </box>
     )
   }
@@ -29,9 +31,11 @@ export function LossOverlay({ mode, totalScore, streak, hiddenWord, onPlayAgain,
       <text>The word was: {hiddenWord}</text>
       <text>Final Score: {totalScore}</text>
       <text>Streak: {streak}</text>
-      <text fg="#888">[P] Play Again</text>
-      <text fg="#888">[H] High Scores</text>
-      <text fg="#888">[Esc] Quit</text>
+      <box flexDirection="row" gap={4}>
+        <text fg="#888">[P] Play Again</text>
+        <text fg="#888">[H] High Scores</text>
+        <text fg="#888">[Esc] Quit</text>
+      </box>
     </box>
   )
 }
