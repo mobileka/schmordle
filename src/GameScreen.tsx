@@ -7,7 +7,7 @@ import { WinOverlay } from './WinOverlay'
 import { LossOverlay } from './LossOverlay'
 import { evaluateGuess, accumulateLetterStates, calculateScore, type LetterState } from './wordle'
 import { getRandomWord, isValidWord } from './dictionary'
-import type { GameMode } from './storage'
+import type { GameMode, Strictness } from './storage'
 
 type GameStatus = 'playing' | 'won' | 'lost' | 'giving-up'
 
@@ -25,6 +25,8 @@ type GameState = {
   streak: number
   score: number
   lastScoreEarned: number
+  strictness: Strictness
+  extraChallenges: { prohibitAbsent: boolean }
 }
 
 type GameAction =
@@ -49,9 +51,9 @@ function getInitialTime(mode: GameMode): number {
   }
 }
 
-export function createInitialState(mode: GameMode): GameState {
+export function createInitialState(opts: { mode: GameMode; strictness?: Strictness; extraChallenges?: { prohibitAbsent: boolean } }): GameState {
   return {
-    mode,
+    mode: opts.mode,
     grid: Array(6).fill(null).map(() => Array(5).fill(null)),
     states: Array(6).fill(null).map(() => Array(5).fill(null)),
     currentRow: 0,
@@ -60,10 +62,12 @@ export function createInitialState(mode: GameMode): GameState {
     status: 'playing',
     error: '',
     letterStates: new Map(),
-    timeRemaining: getInitialTime(mode),
+    timeRemaining: getInitialTime(opts.mode),
     streak: 0,
     score: 0,
     lastScoreEarned: 0,
+    strictness: opts.strictness ?? 'relaxed',
+    extraChallenges: opts.extraChallenges ?? { prohibitAbsent: false },
   }
 }
 
@@ -74,6 +78,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'TYPE_LETTER': {
       if (state.currentCol >= 5) return state
+      if (state.extraChallenges.prohibitAbsent && state.letterStates.get(action.letter.toUpperCase()) === 'absent') return state
       const newGrid = state.grid.map(row => [...row])
       const row = newGrid[state.currentRow]
       if (!row) return state
@@ -108,6 +113,36 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const guess = currentRow.join('')
       if (!isValidWord(guess)) {
         return { ...state, error: 'Not in dictionary' }
+      }
+
+      if (state.strictness !== 'relaxed') {
+        const requiredLetters = new Set<string>()
+        const correctPositions = new Map<number, string>()
+        for (let r = 0; r < state.currentRow; r++) {
+          const rowStates = state.states[r]
+          const rowGuess = state.grid[r]
+          if (!rowStates || !rowGuess) continue
+          for (let c = 0; c < 5; c++) {
+            const s = rowStates[c]
+            const letter = rowGuess[c]
+            if (!s || !letter) continue
+            if (s === 'present' || s === 'correct') requiredLetters.add(letter)
+            if (s === 'correct') correctPositions.set(c, letter)
+          }
+        }
+        const guessLetters = guess.split('')
+        for (const letter of requiredLetters) {
+          if (!guessLetters.includes(letter)) {
+            return { ...state, error: 'Must use revealed letters' }
+          }
+        }
+        if (state.strictness === 'very-strict') {
+          for (const [pos, letter] of correctPositions) {
+            if (guessLetters[pos] !== letter) {
+              return { ...state, error: 'Correct letters must stay in position' }
+            }
+          }
+        }
       }
 
       const result = evaluateGuess(guess, state.hiddenWord)
@@ -180,11 +215,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
 interface GameScreenProps {
   mode: GameMode
+  strictness: Strictness
+  extraChallenges: { prohibitAbsent: boolean }
   onQuit: () => void
 }
 
-export function GameScreen({ mode, onQuit }: GameScreenProps) {
-  const [state, dispatch] = useReducer(gameReducer, mode, createInitialState)
+export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameScreenProps) {
+  const [state, dispatch] = useReducer(gameReducer, { mode, strictness, extraChallenges }, createInitialState)
   const renderer = useRenderer()
 
   useEffect(() => {
@@ -322,7 +359,7 @@ export function GameScreen({ mode, onQuit }: GameScreenProps) {
       </box>
       <text fg={messageColor} height={1}>{message}</text>
       <Grid grid={state.grid} states={state.states} />
-      <Keyboard letterStates={state.letterStates} />
+      <Keyboard letterStates={state.letterStates} prohibitAbsent={state.extraChallenges.prohibitAbsent} />
       <text fg="#888">[Esc] Back</text>
     </box>
   )

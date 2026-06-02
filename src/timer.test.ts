@@ -3,19 +3,19 @@ import { gameReducer, createInitialState } from './GameScreen'
 
 describe('Timer logic', () => {
   test('TICK decrements timeRemaining', () => {
-    const state = createInitialState('normal')
+    const state = createInitialState({ mode: 'normal' })
     const result = gameReducer(state, { type: 'TICK' })
     expect(result.timeRemaining).toBe(179)
   })
 
   test('TICK does not decrement below 0', () => {
-    const state = { ...createInitialState('normal'), timeRemaining: 0 }
+    const state = { ...createInitialState({ mode: 'normal' }), timeRemaining: 0 }
     const result = gameReducer(state, { type: 'TICK' })
     expect(result.timeRemaining).toBe(0)
   })
 
   test('TICK sets status to lost when time runs out', () => {
-    const state = { ...createInitialState('normal'), timeRemaining: 1, streak: 3 }
+    const state = { ...createInitialState({ mode: 'normal' }), timeRemaining: 1, streak: 3 }
     const result = gameReducer(state, { type: 'TICK' })
     expect(result.timeRemaining).toBe(0)
     expect(result.status).toBe('lost')
@@ -23,20 +23,20 @@ describe('Timer logic', () => {
   })
 
   test('TICK is no-op in zen mode', () => {
-    const state = createInitialState('zen')
+    const state = createInitialState({ mode: 'zen' })
     const result = gameReducer(state, { type: 'TICK' })
     expect(result.timeRemaining).toBe(0)
     expect(result.status).toBe('playing')
   })
 
   test('TICK does not decrement when game is over', () => {
-    const state = { ...createInitialState('normal'), status: 'won' as const, timeRemaining: 50 }
+    const state = { ...createInitialState({ mode: 'normal' }), status: 'won' as const, timeRemaining: 50 }
     const result = gameReducer(state, { type: 'TICK' })
     expect(result.timeRemaining).toBe(50)
   })
 
   test('streak increments on win', () => {
-    const state = { ...createInitialState('normal'), streak: 2, hiddenWord: 'APPLE' }
+    const state = { ...createInitialState({ mode: 'normal' }), streak: 2, hiddenWord: 'APPLE' }
     const grid = state.grid.map((row: (string | null)[]) => [...row])
     const row = grid[0]
     if (row) {
@@ -52,7 +52,7 @@ describe('Timer logic', () => {
   })
 
   test('normal win adds 180s time bonus', () => {
-    const state = { ...createInitialState('normal'), hiddenWord: 'APPLE', timeRemaining: 50 }
+    const state = { ...createInitialState({ mode: 'normal' }), hiddenWord: 'APPLE', timeRemaining: 50 }
     const grid = state.grid.map((row: (string | null)[]) => [...row])
     const row = grid[0]
     if (row) {
@@ -68,7 +68,7 @@ describe('Timer logic', () => {
   })
 
   test('insane win adds 30s time bonus', () => {
-    const state = { ...createInitialState('insane'), hiddenWord: 'APPLE', timeRemaining: 10 }
+    const state = { ...createInitialState({ mode: 'insane' }), hiddenWord: 'APPLE', timeRemaining: 10 }
     const grid = state.grid.map((row: (string | null)[]) => [...row])
     const row = grid[0]
     if (row) {
@@ -84,7 +84,7 @@ describe('Timer logic', () => {
   })
 
   test('zen win does not add time bonus', () => {
-    const state = { ...createInitialState('zen'), hiddenWord: 'APPLE' }
+    const state = { ...createInitialState({ mode: 'zen' }), hiddenWord: 'APPLE' }
     const grid = state.grid.map((row: (string | null)[]) => [...row])
     const row = grid[0]
     if (row) {
@@ -100,7 +100,7 @@ describe('Timer logic', () => {
   })
 
   test('streak preserved on loss, reset on NEW_ROUND', () => {
-    const state = { ...createInitialState('normal'), streak: 5, currentRow: 5, hiddenWord: 'APPLE' }
+    const state = { ...createInitialState({ mode: 'normal' }), streak: 5, currentRow: 5, hiddenWord: 'APPLE' }
     const grid = state.grid.map((row: (string | null)[]) => [...row])
     const row = grid[5]
     if (row) {

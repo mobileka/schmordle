@@ -4,10 +4,11 @@ import { loadConfig, saveConfig, type Config, type GameMode } from './storage'
 import { SplashScreen } from './SplashScreen'
 import { MenuScreen } from './MenuScreen'
 import { GameScreen } from './GameScreen'
+import { SettingsScreen } from './SettingsScreen'
 
 const CONFIG_PATH = `${process.env.HOME}/.config/schmordle/config.json`
 
-type Screen = 'splash' | 'menu' | 'game'
+type Screen = 'splash' | 'menu' | 'game' | 'settings'
 
 export function App() {
   const [config, setConfig] = useState<Config | null>(null)
@@ -41,7 +42,30 @@ export function App() {
     return (
       <GameScreen
         mode={gameMode}
+        strictness={config.settings.strictness}
+        extraChallenges={config.settings.extraChallenges}
         onQuit={() => setScreen('menu')}
+      />
+    )
+  }
+
+  if (screen === 'settings') {
+    return (
+      <SettingsScreen
+        strictness={config.settings.strictness}
+        prohibitAbsent={config.settings.extraChallenges.prohibitAbsent}
+        onSave={async (settings) => {
+          const updated = {
+            ...config,
+            settings: {
+              strictness: settings.strictness,
+              extraChallenges: { prohibitAbsent: settings.prohibitAbsent }
+            }
+          }
+          await saveConfig(CONFIG_PATH, updated)
+          setConfig(updated)
+        }}
+        onBack={() => setScreen('menu')}
       />
     )
   }
@@ -52,9 +76,7 @@ export function App() {
         setGameMode(mode)
         setScreen('game')
       }}
-      onSettings={() => {
-        console.log('Settings')
-      }}
+      onSettings={() => setScreen('settings')}
       onHighScores={() => {
         console.log('High Scores')
       }}
