@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { gameReducer, createInitialState } from './GameScreen'
 
 describe('Win flow', () => {
-  test('win adds time bonus (+60 seconds)', () => {
+  test('win adds mode-specific time bonus (normal: +180s)', () => {
     const state = { ...createInitialState('normal'), timeRemaining: 50, hiddenWord: 'APPLE' }
     const grid = state.grid.map(row => [...row])
     const row = grid[0]
@@ -15,7 +15,7 @@ describe('Win flow', () => {
     }
     const stateWithGuess = { ...state, grid, currentCol: 5 }
     const result = gameReducer(stateWithGuess, { type: 'SUBMIT' })
-    expect(result.timeRemaining).toBe(110) // 50 + 60
+    expect(result.timeRemaining).toBe(230) // 50 + 180
   })
 
   test('win tracks lastScoreEarned', () => {

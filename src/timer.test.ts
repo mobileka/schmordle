@@ -5,7 +5,7 @@ describe('Timer logic', () => {
   test('TICK decrements timeRemaining', () => {
     const state = createInitialState('normal')
     const result = gameReducer(state, { type: 'TICK' })
-    expect(result.timeRemaining).toBe(119)
+    expect(result.timeRemaining).toBe(179)
   })
 
   test('TICK does not decrement below 0', () => {
@@ -19,7 +19,14 @@ describe('Timer logic', () => {
     const result = gameReducer(state, { type: 'TICK' })
     expect(result.timeRemaining).toBe(0)
     expect(result.status).toBe('lost')
-    expect(result.streak).toBe(0)
+    expect(result.streak).toBe(3)
+  })
+
+  test('TICK is no-op in zen mode', () => {
+    const state = createInitialState('zen')
+    const result = gameReducer(state, { type: 'TICK' })
+    expect(result.timeRemaining).toBe(0)
+    expect(result.status).toBe('playing')
   })
 
   test('TICK does not decrement when game is over', () => {
@@ -44,7 +51,55 @@ describe('Timer logic', () => {
     expect(result.streak).toBe(3)
   })
 
-  test('streak resets on loss', () => {
+  test('normal win adds 180s time bonus', () => {
+    const state = { ...createInitialState('normal'), hiddenWord: 'APPLE', timeRemaining: 50 }
+    const grid = state.grid.map((row: (string | null)[]) => [...row])
+    const row = grid[0]
+    if (row) {
+      row[0] = 'A'
+      row[1] = 'P'
+      row[2] = 'P'
+      row[3] = 'L'
+      row[4] = 'E'
+    }
+    const stateWithGuess = { ...state, grid, currentCol: 5 }
+    const result = gameReducer(stateWithGuess, { type: 'SUBMIT' })
+    expect(result.timeRemaining).toBe(230)
+  })
+
+  test('insane win adds 30s time bonus', () => {
+    const state = { ...createInitialState('insane'), hiddenWord: 'APPLE', timeRemaining: 10 }
+    const grid = state.grid.map((row: (string | null)[]) => [...row])
+    const row = grid[0]
+    if (row) {
+      row[0] = 'A'
+      row[1] = 'P'
+      row[2] = 'P'
+      row[3] = 'L'
+      row[4] = 'E'
+    }
+    const stateWithGuess = { ...state, grid, currentCol: 5 }
+    const result = gameReducer(stateWithGuess, { type: 'SUBMIT' })
+    expect(result.timeRemaining).toBe(40)
+  })
+
+  test('zen win does not add time bonus', () => {
+    const state = { ...createInitialState('zen'), hiddenWord: 'APPLE' }
+    const grid = state.grid.map((row: (string | null)[]) => [...row])
+    const row = grid[0]
+    if (row) {
+      row[0] = 'A'
+      row[1] = 'P'
+      row[2] = 'P'
+      row[3] = 'L'
+      row[4] = 'E'
+    }
+    const stateWithGuess = { ...state, grid, currentCol: 5 }
+    const result = gameReducer(stateWithGuess, { type: 'SUBMIT' })
+    expect(result.timeRemaining).toBe(0)
+  })
+
+  test('streak preserved on loss, reset on NEW_ROUND', () => {
     const state = { ...createInitialState('normal'), streak: 5, currentRow: 5, hiddenWord: 'APPLE' }
     const grid = state.grid.map((row: (string | null)[]) => [...row])
     const row = grid[5]
@@ -57,6 +112,8 @@ describe('Timer logic', () => {
     }
     const stateWithGuess = { ...state, grid, currentCol: 5 }
     const result = gameReducer(stateWithGuess, { type: 'SUBMIT' })
-    expect(result.streak).toBe(0)
+    expect(result.streak).toBe(5)
+    const newRound = gameReducer(result, { type: 'NEW_ROUND' })
+    expect(newRound.streak).toBe(0)
   })
 })
