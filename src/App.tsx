@@ -1,24 +1,45 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRenderer } from '@opentui/react'
 import { loadConfig, saveConfig, type Config, type GameMode } from './storage'
+import { loadHighScores, addHighScore, type HighScores } from './highScores'
 import { SplashScreen } from './SplashScreen'
 import { MenuScreen } from './MenuScreen'
 import { GameScreen } from './GameScreen'
 import { SettingsScreen } from './SettingsScreen'
+import { HighScoresScreen } from './HighScoresScreen'
 
 const CONFIG_PATH = `${process.env.HOME}/.config/schmordle/config.json`
+const HIGH_SCORES_PATH = `${process.env.HOME}/.config/schmordle/high-scores.json`
 
-type Screen = 'splash' | 'menu' | 'game' | 'settings'
+type Screen = 'splash' | 'menu' | 'game' | 'settings' | 'highScores'
 
 export function App() {
   const [config, setConfig] = useState<Config | null>(null)
+  const [highScores, setHighScores] = useState<HighScores>({})
   const [screen, setScreen] = useState<Screen>('splash')
   const [gameMode, setGameMode] = useState<GameMode>('normal')
   const renderer = useRenderer()
 
+  const handleGameEnd = useCallback(async (score: number, streak: number) => {
+    if (!config?.username || score === 0) return
+    await addHighScore(HIGH_SCORES_PATH, gameMode, {
+      username: config.username,
+      score,
+      date: new Date().toISOString().split('T')[0] ?? '',
+      strictness: config.settings.strictness,
+      extraChallenges: config.settings.extraChallenges.prohibitAbsent ? ['Prohibit Absent'] : []
+    })
+    const updatedScores = await loadHighScores(HIGH_SCORES_PATH)
+    setHighScores(updatedScores)
+  }, [config, gameMode])
+
   useEffect(() => {
-    loadConfig(CONFIG_PATH).then((c) => {
+    Promise.all([
+      loadConfig(CONFIG_PATH),
+      loadHighScores(HIGH_SCORES_PATH)
+    ]).then(([c, hs]) => {
       setConfig(c)
+      setHighScores(hs)
       if (c.username) setScreen('menu')
     })
   }, [])
@@ -45,6 +66,8 @@ export function App() {
         strictness={config.settings.strictness}
         extraChallenges={config.settings.extraChallenges}
         onQuit={() => setScreen('menu')}
+        onHighScores={() => setScreen('highScores')}
+        onGameEnd={handleGameEnd}
       />
     )
   }
@@ -70,6 +93,15 @@ export function App() {
     )
   }
 
+  if (screen === 'highScores') {
+    return (
+      <HighScoresScreen
+        highScores={highScores}
+        onBack={() => setScreen('menu')}
+      />
+    )
+  }
+
   return (
     <MenuScreen
       onSelect={(mode) => {
@@ -77,9 +109,7 @@ export function App() {
         setScreen('game')
       }}
       onSettings={() => setScreen('settings')}
-      onHighScores={() => {
-        console.log('High Scores')
-      }}
+      onHighScores={() => setScreen('highScores')}
       onQuit={() => {
         renderer.destroy()
       }}

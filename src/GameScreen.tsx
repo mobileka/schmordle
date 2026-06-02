@@ -218,9 +218,11 @@ interface GameScreenProps {
   strictness: Strictness
   extraChallenges: { prohibitAbsent: boolean }
   onQuit: () => void
+  onHighScores: () => void
+  onGameEnd: (score: number, streak: number) => void
 }
 
-export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameScreenProps) {
+export function GameScreen({ mode, strictness, extraChallenges, onQuit, onHighScores, onGameEnd }: GameScreenProps) {
   const [state, dispatch] = useReducer(gameReducer, { mode, strictness, extraChallenges }, createInitialState)
   const [giveUpSelection, setGiveUpSelection] = useState<'yes' | 'no'>('yes')
   const renderer = useRenderer()
@@ -260,7 +262,7 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameSc
           return
         }
         if (key.sequence === 'h' || key.sequence === 'H') {
-          console.log('High Scores')
+          onHighScores()
           return
         }
         if (key.name === 'escape') {
@@ -276,7 +278,7 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameSc
             return
           }
           if (key.sequence === 'h' || key.sequence === 'H') {
-            console.log('High Scores')
+            onHighScores()
             return
           }
           if (key.name === 'escape') {
@@ -324,6 +326,12 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameSc
     return () => clearTimeout(timeout)
   }, [state.status, mode])
 
+  useEffect(() => {
+    if (state.status === 'lost' && mode !== 'zen') {
+      onGameEnd(state.score, state.streak)
+    }
+  }, [state.status, state.score, state.streak, mode, onGameEnd])
+
   const message = state.error || ''
   const messageColor = state.error ? '#ff6b6b' : '#ff6b6b'
 
@@ -365,7 +373,7 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameSc
         hiddenWord={state.hiddenWord}
         timeBonus={getInitialTime(mode)}
         onPlayAgain={() => dispatch({ type: 'NEW_ROUND' })}
-        onHighScores={() => console.log('High Scores')}
+        onHighScores={onHighScores}
         onQuit={onQuit}
       />
     )
@@ -379,7 +387,7 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameSc
         streak={state.streak}
         hiddenWord={state.hiddenWord}
         onPlayAgain={() => dispatch({ type: 'NEW_ROUND' })}
-        onHighScores={() => console.log('High Scores')}
+        onHighScores={onHighScores}
         onQuit={onQuit}
       />
     )
