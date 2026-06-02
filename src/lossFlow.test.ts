@@ -3,7 +3,7 @@ import { gameReducer, createInitialState } from './GameScreen'
 
 describe('Loss flow', () => {
   test('loss on 6th incorrect guess sets status to lost', () => {
-    const state = { ...createInitialState('normal'), hiddenWord: 'APPLE', currentRow: 5 }
+    const state = { ...createInitialState({ mode: 'normal' }), hiddenWord: 'APPLE', currentRow: 5 }
     const grid = state.grid.map(row => [...row])
     const row = grid[5]
     if (row) {
@@ -19,7 +19,7 @@ describe('Loss flow', () => {
   })
 
   test('loss preserves streak for overlay display', () => {
-    const state = { ...createInitialState('normal'), hiddenWord: 'APPLE', currentRow: 5, streak: 3 }
+    const state = { ...createInitialState({ mode: 'normal' }), hiddenWord: 'APPLE', currentRow: 5, streak: 3 }
     const grid = state.grid.map(row => [...row])
     const row = grid[5]
     if (row) {
@@ -35,21 +35,21 @@ describe('Loss flow', () => {
   })
 
   test('loss on time expiry sets status to lost', () => {
-    const state = { ...createInitialState('normal'), timeRemaining: 1 }
+    const state = { ...createInitialState({ mode: 'normal' }), timeRemaining: 1 }
     const result = gameReducer(state, { type: 'TICK' })
     expect(result.status).toBe('lost')
     expect(result.timeRemaining).toBe(0)
   })
 
   test('loss on time expiry preserves streak', () => {
-    const state = { ...createInitialState('normal'), timeRemaining: 1, streak: 5 }
+    const state = { ...createInitialState({ mode: 'normal' }), timeRemaining: 1, streak: 5 }
     const result = gameReducer(state, { type: 'TICK' })
     expect(result.streak).toBe(5)
   })
 
   test('NEW_ROUND after loss resets game state including streak and score', () => {
     const state = {
-      ...createInitialState('normal'),
+      ...createInitialState({ mode: 'normal' }),
       score: 100,
       streak: 3,
       timeRemaining: 50,

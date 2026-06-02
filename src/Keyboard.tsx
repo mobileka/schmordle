@@ -2,6 +2,7 @@ import type { LetterState } from './wordle'
 
 interface KeyboardProps {
   letterStates: Map<string, LetterState>
+  prohibitAbsent?: boolean
 }
 
 const colors: Record<LetterState, string> = {
@@ -16,13 +17,14 @@ const rows = [
   ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
 ]
 
-export function Keyboard({ letterStates }: KeyboardProps) {
+export function Keyboard({ letterStates, prohibitAbsent }: KeyboardProps) {
   return (
     <box flexDirection="column" gap={1} alignItems="center">
       {rows.map((row, rowIdx) => (
         <box key={rowIdx} flexDirection="row" gap={1}>
           {row.map((letter) => {
             const state = letterStates.get(letter)
+            const disabled = prohibitAbsent && state === 'absent'
             const bg = state ? colors[state] : undefined
             return (
               <box
@@ -31,9 +33,9 @@ export function Keyboard({ letterStates }: KeyboardProps) {
                 height={1}
                 justifyContent="center"
                 alignItems="center"
-                backgroundColor={bg}
+                backgroundColor={disabled ? '#1a1a1a' : bg}
               >
-                <text>{letter}</text>
+                <text fg={disabled ? '#333' : undefined}>{disabled ? ' ' : letter}</text>
               </box>
             )
           })}

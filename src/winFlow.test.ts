@@ -3,7 +3,7 @@ import { gameReducer, createInitialState } from './GameScreen'
 
 describe('Win flow', () => {
   test('win adds mode-specific time bonus (normal: +180s)', () => {
-    const state = { ...createInitialState('normal'), timeRemaining: 50, hiddenWord: 'APPLE' }
+    const state = { ...createInitialState({ mode: 'normal' }), timeRemaining: 50, hiddenWord: 'APPLE' }
     const grid = state.grid.map(row => [...row])
     const row = grid[0]
     if (row) {
@@ -19,7 +19,7 @@ describe('Win flow', () => {
   })
 
   test('win tracks lastScoreEarned', () => {
-    const state = { ...createInitialState('normal'), timeRemaining: 50, streak: 2, hiddenWord: 'APPLE' }
+    const state = { ...createInitialState({ mode: 'normal' }), timeRemaining: 50, streak: 2, hiddenWord: 'APPLE' }
     const grid = state.grid.map(row => [...row])
     const row = grid[0]
     if (row) {
@@ -37,7 +37,7 @@ describe('Win flow', () => {
 
   test('NEW_ROUND resets grid but keeps score/streak/time', () => {
     const state = {
-      ...createInitialState('normal'),
+      ...createInitialState({ mode: 'normal' }),
       score: 500,
       streak: 3,
       timeRemaining: 80,
