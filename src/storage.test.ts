@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
-import { loadConfig, saveConfig, addHighScore, type Config } from './storage'
+import { loadConfig, saveConfig, type Config } from './storage'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -22,7 +22,6 @@ describe('storage', () => {
     expect(config.username).toBe('')
     expect(config.settings.strictness).toBe('relaxed')
     expect(config.settings.extraChallenges.prohibitAbsent).toBe(false)
-    expect(config.highScores).toEqual({})
   })
 
   test('saveConfig creates directory and file', async () => {
@@ -38,36 +37,12 @@ describe('storage', () => {
   test('loadConfig reads saved data', async () => {
     const config: Config = {
       username: 'alice',
-      settings: { strictness: 'strict', extraChallenges: { prohibitAbsent: true } },
-      highScores: {}
+      settings: { strictness: 'strict', extraChallenges: { prohibitAbsent: true } }
     }
     await saveConfig(configPath, config)
 
     const loaded = await loadConfig(configPath)
     expect(loaded.username).toBe('alice')
     expect(loaded.settings.strictness).toBe('strict')
-  })
-
-  test('addHighScore stores and sorts scores', async () => {
-    await saveConfig(configPath, await loadConfig(configPath))
-
-    await addHighScore(configPath, 'normal', { username: 'alice', score: 100, date: '2026-01-01', extraChallenges: [] })
-    await addHighScore(configPath, 'normal', { username: 'alice', score: 200, date: '2026-01-02', extraChallenges: [] })
-    await addHighScore(configPath, 'normal', { username: 'alice', score: 50, date: '2026-01-03', extraChallenges: [] })
-
-    const config = await loadConfig(configPath)
-    const scores = config.highScores.normal!
-    expect(scores.length).toBe(3)
-    expect(scores[0].score).toBe(200)
-    expect(scores[1].score).toBe(100)
-    expect(scores[2].score).toBe(50)
-  })
-
-  test('addHighScore skips score of 0', async () => {
-    await saveConfig(configPath, await loadConfig(configPath))
-    await addHighScore(configPath, 'normal', { username: 'alice', score: 0, date: '2026-01-01', extraChallenges: [] })
-
-    const config = await loadConfig(configPath)
-    expect(config.highScores.normal).toBeUndefined()
   })
 })
