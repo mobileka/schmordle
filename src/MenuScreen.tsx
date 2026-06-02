@@ -49,6 +49,10 @@ export function MenuScreen({ onSelect, onSettings, onHighScores, onQuit }: MenuS
         onHighScores()
         return
       }
+      if (key.name === 'space' && selectRef.current) {
+        selectRef.current.selectCurrent()
+        return
+      }
       const num = parseInt(key.name)
       if (num >= 1 && num <= 6 && selectRef.current) {
         selectRef.current.setSelectedIndex(num - 1)

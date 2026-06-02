@@ -70,17 +70,30 @@ export function SettingsScreen({ strictness, prohibitAbsent, onSave, onBack }: S
       <box flexDirection="column" gap={1}>
         <text fg="#888">Strictness:</text>
         {strictnessOptions.map((opt, i) => (
-          <box key={opt.value} flexDirection="row" gap={1} paddingLeft={2}>
-            <text fg={cursor === i ? '#fff' : '#888'}>
+          <box
+            key={opt.value}
+            flexDirection="row"
+            gap={1}
+            paddingLeft={2}
+            paddingRight={1}
+            backgroundColor={cursor === i ? '#334455' : undefined}
+          >
+            <text fg={cursor === i ? '#FFFF00' : '#888'}>
               {cursor === i ? '▸ ' : '  '}[{i + 1}] {currentStrictness === opt.value ? '◉' : '○'} {opt.label}
             </text>
-            <text fg="#555">— {opt.description}</text>
+            <text fg={cursor === i ? '#CCCCCC' : '#555'}>— {opt.description}</text>
           </box>
         ))}
 
         <text fg="#888" marginTop={1}>Extra Challenges:</text>
-        <box flexDirection="row" gap={1} paddingLeft={2}>
-          <text fg={cursor === strictnessOptions.length ? '#fff' : '#888'}>
+        <box
+          flexDirection="row"
+          gap={1}
+          paddingLeft={2}
+          paddingRight={1}
+          backgroundColor={cursor === strictnessOptions.length ? '#334455' : undefined}
+        >
+          <text fg={cursor === strictnessOptions.length ? '#FFFF00' : '#888'}>
             {cursor === strictnessOptions.length ? '▸ ' : '  '}[4] [{currentProhibitAbsent ? '✓' : ' '}] Prohibit known absent letters
           </text>
         </box>

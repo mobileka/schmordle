@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from 'react'
+import { useReducer, useEffect, useState } from 'react'
 import { useRenderer } from '@opentui/react'
 import { Grid } from './Grid'
 import { Keyboard } from './Keyboard'
@@ -222,6 +222,7 @@ interface GameScreenProps {
 
 export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameScreenProps) {
   const [state, dispatch] = useReducer(gameReducer, { mode, strictness, extraChallenges }, createInitialState)
+  const [giveUpSelection, setGiveUpSelection] = useState<'yes' | 'no'>('yes')
   const renderer = useRenderer()
 
   useEffect(() => {
@@ -231,7 +232,23 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameSc
           dispatch({ type: 'CONFIRM_GIVE_UP' })
           return
         }
-        if (key.sequence === 'n' || key.sequence === 'N' || key.name === 'escape') {
+        if (key.sequence === 'n' || key.sequence === 'N') {
+          dispatch({ type: 'CANCEL_GIVE_UP' })
+          return
+        }
+        if (key.name === 'up' || key.name === 'down') {
+          setGiveUpSelection((prev: 'yes' | 'no') => prev === 'yes' ? 'no' : 'yes')
+          return
+        }
+        if (key.name === 'return' || key.name === 'space') {
+          if (giveUpSelection === 'yes') {
+            dispatch({ type: 'CONFIRM_GIVE_UP' })
+          } else {
+            dispatch({ type: 'CANCEL_GIVE_UP' })
+          }
+          return
+        }
+        if (key.name === 'escape') {
           dispatch({ type: 'CANCEL_GIVE_UP' })
           return
         }
@@ -289,7 +306,7 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameSc
 
     renderer.keyInput.on('keypress', handler)
     return () => { renderer.keyInput.off('keypress', handler) }
-  }, [renderer, onQuit, state.status, mode])
+  }, [renderer, onQuit, state.status, mode, giveUpSelection])
 
   useEffect(() => {
     if (state.status !== 'playing') return
@@ -314,8 +331,26 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit }: GameSc
     return (
       <box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1} gap={1}>
         <text>Give up?</text>
-        <text fg="#888">[Y] Yes</text>
-        <text fg="#888">[N] No</text>
+        <box flexDirection="column" gap={1}>
+          <box
+            backgroundColor={giveUpSelection === 'yes' ? '#334455' : undefined}
+            paddingLeft={1}
+            paddingRight={1}
+          >
+            <text fg={giveUpSelection === 'yes' ? '#FFFF00' : '#888'}>
+              {giveUpSelection === 'yes' ? '▸ ' : '  '}[Y] Yes
+            </text>
+          </box>
+          <box
+            backgroundColor={giveUpSelection === 'no' ? '#334455' : undefined}
+            paddingLeft={1}
+            paddingRight={1}
+          >
+            <text fg={giveUpSelection === 'no' ? '#FFFF00' : '#888'}>
+              {giveUpSelection === 'no' ? '▸ ' : '  '}[N] No{' '}
+            </text>
+          </box>
+        </box>
       </box>
     )
   }

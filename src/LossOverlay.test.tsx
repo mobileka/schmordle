@@ -1,6 +1,18 @@
 import { describe, it, expect, vi } from 'bun:test'
 import { LossOverlay } from './LossOverlay'
 
+function extractAllTexts(node: any): string[] {
+  if (!node) return []
+  if (typeof node === 'string') return [node]
+  if (Array.isArray(node)) return node.flatMap(extractAllTexts)
+  
+  const texts: string[] = []
+  if (node.props?.children) {
+    texts.push(...extractAllTexts(node.props.children))
+  }
+  return texts
+}
+
 describe('LossOverlay', () => {
   it('renders game over message, score, streak, and hidden word', () => {
     const props = {
@@ -27,8 +39,7 @@ describe('LossOverlay', () => {
       onQuit: vi.fn(),
     })
 
-    const children = result.props.children
-    const texts = children.map((c: any) => c.props?.children).flat()
+    const texts = extractAllTexts(result)
     expect(texts).toContain('[P] Play Again')
   })
 
@@ -42,8 +53,7 @@ describe('LossOverlay', () => {
       onQuit: vi.fn(),
     })
 
-    const children = result.props.children
-    const texts = children.map((c: any) => c.props?.children).flat()
+    const texts = extractAllTexts(result)
     expect(texts).toContain('[H] High Scores')
   })
 
@@ -57,8 +67,7 @@ describe('LossOverlay', () => {
       onQuit: vi.fn(),
     })
 
-    const children = result.props.children
-    const texts = children.map((c: any) => c.props?.children).flat()
+    const texts = extractAllTexts(result)
     expect(texts).toContain('[Esc] Quit')
   })
 
@@ -74,8 +83,7 @@ describe('LossOverlay', () => {
     })
 
     expect(result).toBeDefined()
-    const children = result.props.children
-    const texts = children.map((c: any) => c.props?.children).flat()
+    const texts = extractAllTexts(result)
     expect(texts).toContain('Game Over!')
     expect(texts).toContain('The word was: ')
     expect(texts).toContain('APPLE')
@@ -95,8 +103,7 @@ describe('LossOverlay', () => {
     })
 
     expect(result).toBeDefined()
-    const children = result.props.children
-    const texts = children.map((c: any) => c.props?.children).flat()
+    const texts = extractAllTexts(result)
     expect(texts).toContain('Final Score: ')
     expect(texts).toContain('Streak: ')
   })
