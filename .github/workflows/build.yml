@@ -24,11 +24,3 @@ jobs:
         run: bun test --reporter=dots --reporter=junit --reporter-outfile=junit.xml
         env:
           FORCE_COLOR: 1
-
-      - name: Show Test Results in GitHub UI
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: Bun Test Results
-          path: junit.xml
-          reporter: java-junit
