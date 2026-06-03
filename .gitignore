@@ -1,36 +1,30 @@
-# dependencies (bun install)
+schmordle
+
 node_modules
 
-# output
 out
 dist
 build
 *.tgz
 
-# code coverage
 coverage
 *.lcov
 
-# logs
 logs
 *.log
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# dotenv environment variable files
 .env
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
 
-# caches
 .eslintcache
 .cache
 *.tsbuildinfo
 
-# IDEs
 .vscode
 .idea
 
-# Finder (MacOS) folder config
 .DS_Store

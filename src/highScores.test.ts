@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
-import { loadHighScores } from './highScores'
+import { loadHighScores, saveHighScores, addHighScore } from './highScores'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -24,17 +24,15 @@ describe('highScores', () => {
 
   test('saveHighScores creates directory and file', async () => {
     const nestedPath = join(tempDir, 'nested', 'dir', 'high-scores.json')
-    const { saveHighScores } = await import('./highScores')
 
     await saveHighScores(nestedPath, { normal: [{ username: 'alice', score: 100, date: '2026-01-01', strictness: 'relaxed', extraChallenges: [] }] })
 
     const loaded = await loadHighScores(nestedPath)
     expect(loaded.normal).toHaveLength(1)
-    expect(loaded.normal![0].username).toBe('alice')
+    expect(loaded.normal![0]!.username).toBe('alice')
   })
 
   test('addHighScore stores and sorts scores descending', async () => {
-    const { saveHighScores, addHighScore } = await import('./highScores')
     await saveHighScores(scoresPath, {})
 
     await addHighScore(scoresPath, 'normal', { username: 'alice', score: 100, date: '2026-01-01', strictness: 'relaxed', extraChallenges: [] })
@@ -43,13 +41,12 @@ describe('highScores', () => {
 
     const scores = await loadHighScores(scoresPath)
     expect(scores.normal).toHaveLength(3)
-    expect(scores.normal![0].score).toBe(200)
-    expect(scores.normal![1].score).toBe(100)
-    expect(scores.normal![2].score).toBe(50)
+    expect(scores.normal![0]!.score).toBe(200)
+    expect(scores.normal![1]!.score).toBe(100)
+    expect(scores.normal![2]!.score).toBe(50)
   })
 
   test('addHighScore skips score of 0', async () => {
-    const { saveHighScores, addHighScore } = await import('./highScores')
     await saveHighScores(scoresPath, {})
 
     await addHighScore(scoresPath, 'normal', { username: 'alice', score: 0, date: '2026-01-01', strictness: 'relaxed', extraChallenges: [] })
@@ -59,7 +56,6 @@ describe('highScores', () => {
   })
 
   test('addHighScore keeps max 10 per mode per user', async () => {
-    const { saveHighScores, addHighScore } = await import('./highScores')
     await saveHighScores(scoresPath, {})
 
     for (let i = 1; i <= 12; i++) {
@@ -68,12 +64,11 @@ describe('highScores', () => {
 
     const scores = await loadHighScores(scoresPath)
     expect(scores.normal).toHaveLength(10)
-    expect(scores.normal![0].score).toBe(120)
-    expect(scores.normal![9].score).toBe(30)
+    expect(scores.normal![0]!.score).toBe(120)
+    expect(scores.normal![9]!.score).toBe(30)
   })
 
   test('addHighScore does not affect other users scores', async () => {
-    const { saveHighScores, addHighScore } = await import('./highScores')
     await saveHighScores(scoresPath, {})
 
     await addHighScore(scoresPath, 'normal', { username: 'alice', score: 100, date: '2026-01-01', strictness: 'relaxed', extraChallenges: [] })

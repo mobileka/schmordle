@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { gameReducer, createInitialState } from './GameScreen'
+import { submitGuess } from './testHelpers'
 
 describe('Custom mode', () => {
   test('createInitialState uses customTime for timeRemaining', () => {
@@ -9,18 +10,8 @@ describe('Custom mode', () => {
 
   test('win adds customTime to timeRemaining (not hardcoded 120)', () => {
     const state = { ...createInitialState({ mode: 'custom', customTime: 45 }), timeRemaining: 20, hiddenWord: 'APPLE' }
-    const grid = state.grid.map(row => [...row])
-    const row = grid[0]
-    if (row) {
-      row[0] = 'A'
-      row[1] = 'P'
-      row[2] = 'P'
-      row[3] = 'L'
-      row[4] = 'E'
-    }
-    const stateWithGuess = { ...state, grid, currentCol: 5 }
-    const result = gameReducer(stateWithGuess, { type: 'SUBMIT' })
-    expect(result.timeRemaining).toBe(65) // 20 + 45
+    const result = submitGuess(state, 'APPLE')
+    expect(result.timeRemaining).toBe(65)
   })
 
   test('NEW_ROUND after loss resets time to customTime', () => {

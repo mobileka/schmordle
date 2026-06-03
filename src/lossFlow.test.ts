@@ -1,36 +1,17 @@
 import { describe, expect, test } from 'bun:test'
 import { gameReducer, createInitialState } from './GameScreen'
+import { submitGuess } from './testHelpers'
 
 describe('Loss flow', () => {
   test('loss on 6th incorrect guess sets status to lost', () => {
     const state = { ...createInitialState({ mode: 'normal' }), hiddenWord: 'APPLE', currentRow: 5 }
-    const grid = state.grid.map(row => [...row])
-    const row = grid[5]
-    if (row) {
-      row[0] = 'G'
-      row[1] = 'R'
-      row[2] = 'A'
-      row[3] = 'P'
-      row[4] = 'E'
-    }
-    const stateWithGuess = { ...state, grid, currentCol: 5 }
-    const result = gameReducer(stateWithGuess, { type: 'SUBMIT' })
+    const result = submitGuess(state, 'GRAPE')
     expect(result.status).toBe('lost')
   })
 
   test('loss preserves streak for overlay display', () => {
     const state = { ...createInitialState({ mode: 'normal' }), hiddenWord: 'APPLE', currentRow: 5, streak: 3 }
-    const grid = state.grid.map(row => [...row])
-    const row = grid[5]
-    if (row) {
-      row[0] = 'G'
-      row[1] = 'R'
-      row[2] = 'A'
-      row[3] = 'P'
-      row[4] = 'E'
-    }
-    const stateWithGuess = { ...state, grid, currentCol: 5 }
-    const result = gameReducer(stateWithGuess, { type: 'SUBMIT' })
+    const result = submitGuess(state, 'GRAPE')
     expect(result.streak).toBe(3)
   })
 

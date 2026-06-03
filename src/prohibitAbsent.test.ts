@@ -1,16 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { gameReducer, createInitialState } from './GameScreen'
-
-function submitGuess(state: any, letters: string) {
-  const grid = state.grid.map((row: (string | null)[]) => [...row])
-  const row = grid[state.currentRow]
-  if (row) {
-    for (let i = 0; i < letters.length; i++) {
-      row[i] = letters[i]!
-    }
-  }
-  return gameReducer({ ...state, grid, currentCol: letters.length }, { type: 'SUBMIT' })
-}
+import { submitGuess } from './testHelpers'
 
 describe('Prohibit absent letters', () => {
   test('TYPE_LETTER blocks absent letter when prohibitAbsent is enabled', () => {
@@ -27,7 +17,7 @@ describe('Prohibit absent letters', () => {
     const afterGuess = submitGuess(state, 'APPLE')
     expect(afterGuess.letterStates.get('P')).toBe('absent')
     const afterType = gameReducer(afterGuess, { type: 'TYPE_LETTER', letter: 'P' })
-    expect(afterType.grid[1][0]).toBe('P')
+    expect(afterType.grid[1]![0]).toBe('P')
     expect(afterType.currentCol).toBe(1)
   })
 
@@ -36,7 +26,7 @@ describe('Prohibit absent letters', () => {
     const afterGuess = submitGuess(state, 'APPLE')
     expect(afterGuess.letterStates.get('A')).toBe('correct')
     const afterType = gameReducer(afterGuess, { type: 'TYPE_LETTER', letter: 'A' })
-    expect(afterType.grid[1][0]).toBe('A')
+    expect(afterType.grid[1]![0]).toBe('A')
     expect(afterType.currentCol).toBe(1)
   })
 
@@ -47,7 +37,7 @@ describe('Prohibit absent letters', () => {
     const afterNewRound = gameReducer(afterGuess, { type: 'NEW_ROUND' })
     expect(afterNewRound.letterStates.size).toBe(0)
     const afterType = gameReducer(afterNewRound, { type: 'TYPE_LETTER', letter: 'P' })
-    expect(afterType.grid[0][0]).toBe('P')
+    expect(afterType.grid[0]![0]).toBe('P')
     expect(afterType.currentCol).toBe(1)
   })
 })

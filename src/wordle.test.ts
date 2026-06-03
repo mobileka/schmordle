@@ -34,7 +34,9 @@ describe('wordle', () => {
 
   test('calculates score correctly', () => {
     expect(calculateScore(0, 1, 60)).toBe(60)
+    expect(calculateScore(0, 1, 30)).toBe(30)
     expect(calculateScore(60, 2, 50)).toBe(160)
+    expect(calculateScore(100, 3, 10)).toBe(130)
     expect(calculateScore(100, 5, 0)).toBe(100)
     expect(calculateScore(0, 0, 60)).toBe(0)
   })
