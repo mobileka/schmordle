@@ -1,16 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { gameReducer, createInitialState } from './GameScreen'
-
-function submitGuess(state: any, letters: string) {
-  const grid = state.grid.map((row: (string | null)[]) => [...row])
-  const row = grid[state.currentRow]
-  if (row) {
-    for (let i = 0; i < letters.length; i++) {
-      row[i] = letters[i]!
-    }
-  }
-  return gameReducer({ ...state, grid, currentCol: letters.length }, { type: 'SUBMIT' })
-}
+import { createInitialState } from './GameScreen'
+import { submitGuess } from './testHelpers'
 
 describe('Strictness validation', () => {
   describe('relaxed mode', () => {
@@ -40,6 +30,14 @@ describe('Strictness validation', () => {
       const result = submitGuess(afterFirst, 'RADIO')
       expect(result.error).toBe('')
       expect(result.currentRow).toBe(2)
+    })
+
+    test('rejects guess missing present letter from previous guess', () => {
+      const state = { ...createInitialState({ mode: 'normal', strictness: 'strict' }), hiddenWord: 'AUDIO' }
+      const afterFirst = submitGuess(state, 'RADIO')
+      expect(afterFirst.states[0]).toEqual(['absent', 'present', 'correct', 'correct', 'correct'])
+      const result = submitGuess(afterFirst, 'HOUSE')
+      expect(result.error).toBe('Must use revealed letters')
     })
   })
 

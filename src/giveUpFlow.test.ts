@@ -39,4 +39,10 @@ describe('Give up flow', () => {
     const result = gameReducer(state, { type: 'GIVE_UP' })
     expect(result.status).toBe('won')
   })
+
+  test('CONFIRM_GIVE_UP is ignored when not giving-up', () => {
+    const state = { ...createInitialState({ mode: 'normal' }), status: 'lost' as const }
+    const result = gameReducer(state, { type: 'CONFIRM_GIVE_UP' })
+    expect(result.status).toBe('lost')
+  })
 })

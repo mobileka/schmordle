@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
 import { loadConfig, saveConfig, type Config } from './storage'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -44,5 +44,12 @@ describe('storage', () => {
     const loaded = await loadConfig(configPath)
     expect(loaded.username).toBe('alice')
     expect(loaded.settings.strictness).toBe('strict')
+  })
+
+  test('loadConfig returns defaults for corrupt JSON', async () => {
+    writeFileSync(configPath, 'not valid json{{{')
+    const config = await loadConfig(configPath)
+    expect(config.username).toBe('')
+    expect(config.settings.strictness).toBe('relaxed')
   })
 })

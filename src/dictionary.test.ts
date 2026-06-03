@@ -2,10 +2,12 @@ import { describe, test, expect } from 'bun:test'
 import { getRandomWord, isValidWord } from './dictionary'
 
 describe('dictionary', () => {
-  test('getRandomWord returns 5-letter word', () => {
-    const word = getRandomWord()
-    expect(word.length).toBe(5)
-    expect(typeof word).toBe('string')
+  test('getRandomWord returns word from dictionary', () => {
+    for (let i = 0; i < 50; i++) {
+      const word = getRandomWord()
+      expect(word.length).toBe(5)
+      expect(isValidWord(word)).toBe(true)
+    }
   })
 
   test('isValidWord returns true for valid word', () => {

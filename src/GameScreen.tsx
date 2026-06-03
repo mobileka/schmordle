@@ -11,7 +11,7 @@ import type { GameMode, Strictness } from './storage'
 
 type GameStatus = 'playing' | 'won' | 'lost' | 'giving-up'
 
-type GameState = {
+export type GameState = {
   mode: GameMode
   grid: (string | null)[][]
   states: (LetterState | null)[][]
@@ -30,7 +30,7 @@ type GameState = {
   customTime: number
 }
 
-type GameAction =
+export type GameAction =
   | { type: 'TYPE_LETTER'; letter: string }
   | { type: 'BACKSPACE' }
   | { type: 'SUBMIT' }
