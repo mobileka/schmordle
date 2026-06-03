@@ -15,7 +15,7 @@ function submitGuess(state: any, letters: string) {
 describe('Strictness validation', () => {
   describe('relaxed mode', () => {
     test('no restrictions on guesses', () => {
-      const state = createInitialState({ mode: 'normal', strictness: 'relaxed' })
+      const state = { ...createInitialState({ mode: 'normal', strictness: 'relaxed' }), hiddenWord: 'AUDIO' }
       const result = submitGuess(state, 'RADIO')
       expect(result.error).toBe('')
       expect(result.status).toBe('playing')

@@ -13,4 +13,12 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - run: bun test
+      - run: bun test --reporter=junit --reporter-outfile=test-results.xml
+        if: failure()
+      - uses: dorny/test-reporter@v1
+        if: failure()
+        with:
+          name: Test Results
+          path: test-results.xml
+          reporter: java-junit
       - run: bun build --compile src/index.tsx --outfile schmordle
