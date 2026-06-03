@@ -9,16 +9,18 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install
-      - run: bun test
-      - run: bun test --reporter=junit --reporter-outfile=test-results.xml
-        if: failure()
-      - uses: dorny/test-reporter@v1
-        if: failure()
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
         with:
-          name: Test Results
-          path: test-results.xml
-          reporter: java-junit
-      - run: bun build --compile src/index.tsx --outfile schmordle
+          bun-version: latest
+
+      - name: Instal Dependencies
+        run: bun install
+
+      - name: Run tests
+        run: bun test --reporter=dots --reporter=junit --reporter-outfile=junit.xml
+        env:
+          FORCE_COLOR: 1
