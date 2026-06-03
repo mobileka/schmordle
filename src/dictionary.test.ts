@@ -4,7 +4,7 @@ import { getRandomWord, isValidWord } from './dictionary'
 describe('dictionary', () => {
   test('getRandomWord returns 5-letter word', () => {
     const word = getRandomWord()
-    expect(word.length).toBe(4)
+    expect(word.length).toBe(5)
     expect(typeof word).toBe('string')
   })
 
