@@ -27,6 +27,7 @@ type GameState = {
   lastScoreEarned: number
   strictness: Strictness
   extraChallenges: { prohibitAbsent: boolean }
+  customTime: number
 }
 
 type GameAction =
@@ -40,18 +41,18 @@ type GameAction =
   | { type: 'CONFIRM_GIVE_UP' }
   | { type: 'CANCEL_GIVE_UP' }
 
-function getInitialTime(mode: GameMode): number {
+function getInitialTime(mode: GameMode, customTime?: number): number {
   switch (mode) {
     case 'zen': return 0
     case 'relaxed': return 300
     case 'normal': return 180
     case 'hard': return 90
     case 'insane': return 30
-    case 'custom': return 120
+    case 'custom': return customTime ?? 120
   }
 }
 
-export function createInitialState(opts: { mode: GameMode; strictness?: Strictness; extraChallenges?: { prohibitAbsent: boolean } }): GameState {
+export function createInitialState(opts: { mode: GameMode; strictness?: Strictness; extraChallenges?: { prohibitAbsent: boolean }; customTime?: number }): GameState {
   return {
     mode: opts.mode,
     grid: Array(6).fill(null).map(() => Array(5).fill(null)),
@@ -62,12 +63,13 @@ export function createInitialState(opts: { mode: GameMode; strictness?: Strictne
     status: 'playing',
     error: '',
     letterStates: new Map(),
-    timeRemaining: getInitialTime(opts.mode),
+    timeRemaining: opts.mode === 'custom' && opts.customTime ? opts.customTime : getInitialTime(opts.mode),
     streak: 0,
     score: 0,
     lastScoreEarned: 0,
     strictness: opts.strictness ?? 'relaxed',
     extraChallenges: opts.extraChallenges ?? { prohibitAbsent: false },
+    customTime: opts.customTime ?? 120,
   }
 }
 
@@ -164,7 +166,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         letterStates: accumulateLetterStates(state.letterStates, guess, result),
         streak: newStreak,
         score: won ? calculateScore(state.score, newStreak, state.timeRemaining) : state.score,
-        timeRemaining: won ? (state.mode === 'zen' ? 0 : state.timeRemaining + getInitialTime(state.mode)) : state.timeRemaining,
+        timeRemaining: won ? (state.mode === 'zen' ? 0 : state.timeRemaining + getInitialTime(state.mode, state.customTime)) : state.timeRemaining,
         lastScoreEarned: scoreEarned,
       }
     }
@@ -203,7 +205,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         status: 'playing',
         error: '',
         letterStates: new Map(),
-        timeRemaining: state.status === 'lost' ? getInitialTime(state.mode) : state.timeRemaining,
+        timeRemaining: state.status === 'lost' ? getInitialTime(state.mode, state.customTime) : state.timeRemaining,
         streak: state.status === 'lost' ? 0 : state.streak,
         score: state.status === 'lost' ? 0 : state.score,
       }
@@ -217,13 +219,14 @@ interface GameScreenProps {
   mode: GameMode
   strictness: Strictness
   extraChallenges: { prohibitAbsent: boolean }
+  customTime?: number
   onQuit: () => void
   onHighScores: () => void
   onGameEnd: (score: number, streak: number) => void
 }
 
-export function GameScreen({ mode, strictness, extraChallenges, onQuit, onHighScores, onGameEnd }: GameScreenProps) {
-  const [state, dispatch] = useReducer(gameReducer, { mode, strictness, extraChallenges }, createInitialState)
+export function GameScreen({ mode, strictness, extraChallenges, customTime, onQuit, onHighScores, onGameEnd }: GameScreenProps) {
+  const [state, dispatch] = useReducer(gameReducer, { mode, strictness, extraChallenges, customTime }, createInitialState)
   const [giveUpSelection, setGiveUpSelection] = useState<'yes' | 'no'>('yes')
   const renderer = useRenderer()
 
@@ -371,7 +374,7 @@ export function GameScreen({ mode, strictness, extraChallenges, onQuit, onHighSc
         streak={state.streak}
         totalScore={state.score}
         hiddenWord={state.hiddenWord}
-        timeBonus={getInitialTime(mode)}
+        timeBonus={getInitialTime(mode, state.customTime)}
         onPlayAgain={() => dispatch({ type: 'NEW_ROUND' })}
         onHighScores={onHighScores}
         onQuit={onQuit}
