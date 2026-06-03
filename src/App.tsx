@@ -7,20 +7,23 @@ import { MenuScreen } from './MenuScreen'
 import { GameScreen } from './GameScreen'
 import { SettingsScreen } from './SettingsScreen'
 import { HighScoresScreen } from './HighScoresScreen'
+import { CustomConfigScreen } from './CustomConfigScreen'
 
 const CONFIG_PATH = `${process.env.HOME}/.config/schmordle/config.json`
 const HIGH_SCORES_PATH = `${process.env.HOME}/.config/schmordle/high-scores.json`
 
-type Screen = 'splash' | 'menu' | 'game' | 'settings' | 'highScores'
+type Screen = 'splash' | 'menu' | 'game' | 'settings' | 'highScores' | 'customConfig'
 
 export function App() {
   const [config, setConfig] = useState<Config | null>(null)
   const [highScores, setHighScores] = useState<HighScores>({})
   const [screen, setScreen] = useState<Screen>('splash')
   const [gameMode, setGameMode] = useState<GameMode>('normal')
+  const [customTime, setCustomTime] = useState<number>(120)
   const renderer = useRenderer()
 
   const handleGameEnd = useCallback(async (score: number, streak: number) => {
+    if (gameMode === 'custom') return
     if (!config?.username || score === 0) return
     await addHighScore(HIGH_SCORES_PATH, gameMode, {
       username: config.username,
@@ -65,6 +68,7 @@ export function App() {
         mode={gameMode}
         strictness={config.settings.strictness}
         extraChallenges={config.settings.extraChallenges}
+        customTime={customTime}
         onQuit={() => setScreen('menu')}
         onHighScores={() => setScreen('highScores')}
         onGameEnd={handleGameEnd}
@@ -102,9 +106,26 @@ export function App() {
     )
   }
 
+  if (screen === 'customConfig') {
+    return (
+      <CustomConfigScreen
+        onStart={(seconds) => {
+          setCustomTime(seconds)
+          setGameMode('custom')
+          setScreen('game')
+        }}
+        onBack={() => setScreen('menu')}
+      />
+    )
+  }
+
   return (
     <MenuScreen
       onSelect={(mode) => {
+        if (mode === 'custom') {
+          setScreen('customConfig')
+          return
+        }
         setGameMode(mode)
         setScreen('game')
       }}
